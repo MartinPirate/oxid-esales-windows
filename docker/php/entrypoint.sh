@@ -21,6 +21,12 @@ if [ ! -f /var/www/html/source/composer.json ]; then
 
     # Apply PHP 8.2 compatibility patches
     php /usr/local/bin/apply-patches.php
+
+    # Activate the Apex theme
+    echo "Activating Apex theme..."
+    cd /var/www/html
+    php vendor/bin/oe-console oe:theme:activate apex
+    echo "Theme activated!"
 fi
 
 # Fix permissions for www-data
