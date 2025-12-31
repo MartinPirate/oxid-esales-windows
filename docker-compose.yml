@@ -1,0 +1,83 @@
+services:
+  php:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: oxid_php
+    volumes:
+      - oxid_source:/var/www/html
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_DATABASE=oxid
+      - MYSQL_USER=oxid
+      - MYSQL_PASSWORD=oxid
+    networks:
+      - oxid_network
+
+  apache:
+    build:
+      context: ./docker/apache
+      dockerfile: Dockerfile
+    container_name: oxid_apache
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - oxid_source:/var/www/html
+    depends_on:
+      - php
+    networks:
+      - oxid_network
+
+  mysql:
+    image: mysql:8.0
+    container_name: oxid_mysql
+    platform: linux/amd64
+    cap_add:
+      - SYS_NICE
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: oxid
+      MYSQL_USER: oxid
+      MYSQL_PASSWORD: oxid
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - oxid_network
+
+  adminer:
+    image: adminer:latest
+    container_name: oxid_adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    networks:
+      - oxid_network
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: oxid_mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - oxid_network
+
+networks:
+  oxid_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  oxid_source:
