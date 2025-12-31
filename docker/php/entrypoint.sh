@@ -18,6 +18,9 @@ if [ ! -f /var/www/html/source/composer.json ]; then
 
     composer create-project --no-interaction --no-dev oxid-esales/oxideshop-project . dev-b-7.3-ce
     echo "OXID eShop installed!"
+
+    # Apply PHP 8.2 compatibility patches
+    php /usr/local/bin/apply-patches.php
 fi
 
 # Fix permissions for www-data

@@ -51,6 +51,7 @@ ENV PHP_FPM_GROUP=www-data
 
 WORKDIR /var/www/html
 
+COPY patches/apply-patches.php /usr/local/bin/apply-patches.php
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
